@@ -1,11 +1,10 @@
 #include <Keyboard.h>
 
-// Pin assignments — adjust to match your PCB routing
+// Pin assignments
 const uint8_t KEY_PINS[3] = {0, 1, 2}; // D0, D1, D2 on the XIAO
 const uint16_t DEBOUNCE_MS = 15;
 
-// What each key sends — edit these to whatever you actually want
-// Options: single keys (KEY_LEFT_CTRL, 'c'), or combos below
+// What each key send
 struct KeyAction {
   uint8_t modifier; // 0 if none
   uint8_t key;
