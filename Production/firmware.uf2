@@ -1,0 +1,58 @@
+#include <Keyboard.h>
+
+// Pin assignments — adjust to match your PCB routing
+const uint8_t KEY_PINS[3] = {0, 1, 2}; // D0, D1, D2 on the XIAO
+const uint16_t DEBOUNCE_MS = 15;
+
+// What each key sends — edit these to whatever you actually want
+// Options: single keys (KEY_LEFT_CTRL, 'c'), or combos below
+struct KeyAction {
+  uint8_t modifier; // 0 if none
+  uint8_t key;
+};
+
+KeyAction actions[3] = {
+  { KEY_LEFT_CTRL, 'c' },   // Key 1: Copy
+  { KEY_LEFT_CTRL, 'v' },   // Key 2: Paste
+  { KEY_LEFT_CTRL, 'z' },   // Key 3: Undo
+};
+
+bool lastState[3] = {HIGH, HIGH, HIGH};
+bool currentState[3] = {HIGH, HIGH, HIGH};
+unsigned long lastChange[3] = {0, 0, 0};
+
+void setup() {
+  for (int i = 0; i < 3; i++) {
+    pinMode(KEY_PINS[i], INPUT_PULLUP);
+  }
+  Keyboard.begin();
+}
+
+void loop() {
+  unsigned long now = millis();
+
+  for (int i = 0; i < 3; i++) {
+    bool reading = digitalRead(KEY_PINS[i]);
+
+    if (reading != lastState[i]) {
+      lastChange[i] = now;
+    }
+
+    if ((now - lastChange[i]) > DEBOUNCE_MS) {
+      if (reading != currentState[i]) {
+        currentState[i] = reading;
+
+        if (currentState[i] == LOW) { // key pressed (active low)
+          if (actions[i].modifier != 0) {
+            Keyboard.press(actions[i].modifier);
+          }
+          Keyboard.press(actions[i].key);
+        } else { // key released
+          Keyboard.releaseAll();
+        }
+      }
+    }
+
+    lastState[i] = reading;
+  }
+}
